@@ -1,0 +1,47 @@
+-- 1. Last booked room per user
+SELECT b.user_id, b.room_no
+FROM bookings b
+JOIN (
+    SELECT user_id, MAX(booking_date) AS last_booking
+    FROM bookings
+    GROUP BY user_id
+) lb
+ON b.user_id = lb.user_id AND b.booking_date = lb.last_booking;
+
+-- 2. Booking total in Nov 2021
+SELECT bc.booking_id,
+       SUM(i.item_rate * bc.item_quantity) AS total_amount
+FROM booking_commercials bc
+JOIN items i ON bc.item_id = i.item_id
+WHERE MONTH(bc.bill_date)=11 AND YEAR(bc.bill_date)=2021
+GROUP BY bc.booking_id;
+
+-- 3. Bills >1000 in Oct 2021
+SELECT bc.bill_id,
+       SUM(i.item_rate * bc.item_quantity) AS bill_amount
+FROM booking_commercials bc
+JOIN items i ON bc.item_id = i.item_id
+WHERE MONTH(bc.bill_date)=10 AND YEAR(bc.bill_date)=2021
+GROUP BY bc.bill_id
+HAVING bill_amount > 1000;
+
+-- 4. Most & least ordered item
+WITH item_counts AS (
+    SELECT MONTH(bill_date) AS month, item_id,
+           SUM(item_quantity) AS total_qty
+    FROM booking_commercials
+    WHERE YEAR(bill_date)=2021
+    GROUP BY MONTH(bill_date), item_id
+)
+SELECT * FROM item_counts;
+
+-- 5. Second highest bill
+WITH bill_totals AS (
+    SELECT MONTH(bill_date) AS month, bill_id,
+           SUM(i.item_rate * bc.item_quantity) AS total
+    FROM booking_commercials bc
+    JOIN items i ON bc.item_id=i.item_id
+    WHERE YEAR(bill_date)=2021
+    GROUP BY MONTH(bill_date), bill_id
+)
+SELECT * FROM bill_totals;

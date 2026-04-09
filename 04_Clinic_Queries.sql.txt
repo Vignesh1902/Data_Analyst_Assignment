@@ -1,0 +1,29 @@
+-- 1. Revenue per channel
+SELECT sales_channel, SUM(amount) AS revenue
+FROM clinic_sales
+WHERE YEAR(datetime)=2021
+GROUP BY sales_channel;
+
+-- 2. Top 10 customers
+SELECT uid, SUM(amount) AS total
+FROM clinic_sales
+GROUP BY uid
+ORDER BY total DESC
+LIMIT 10;
+
+-- 3. Monthly profit
+SELECT MONTH(datetime) AS month,
+       SUM(amount) AS revenue
+FROM clinic_sales
+GROUP BY MONTH(datetime);
+
+-- 4. Most profitable clinic per city
+SELECT cid, SUM(amount) AS revenue
+FROM clinic_sales
+GROUP BY cid;
+
+-- 5. Second least profitable clinic
+SELECT cid, SUM(amount) AS revenue
+FROM clinic_sales
+GROUP BY cid
+ORDER BY revenue ASC;
